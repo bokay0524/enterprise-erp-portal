@@ -1,0 +1,2 @@
+package io.portfolio.erp.security; import org.junit.Test; import static org.junit.Assert.*;
+public class PasswordHasherTest { @Test public void matchesSeededPassword(){PasswordHasher h=new PasswordHasher();assertTrue(h.matches("admin1234","g7CLT/O16zgzC8O7PhO9HA==","OtdA5AlMQiI3MeZuP0m1Ujb1qoueYyauxJhNfJdE21I="));assertFalse(h.matches("wrong","g7CLT/O16zgzC8O7PhO9HA==","OtdA5AlMQiI3MeZuP0m1Ujb1qoueYyauxJhNfJdE21I="));} }

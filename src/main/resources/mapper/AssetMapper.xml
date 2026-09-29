@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.portfolio.erp.mapper.AssetMapper">
+  <select id="searchAssets" resultType="FixedAsset">
+    SELECT * FROM fixed_asset WHERE 1=1
+    <if test="keyword != null and keyword != ''">AND (asset_no LIKE CONCAT('%',#{keyword},'%') OR asset_name LIKE CONCAT('%',#{keyword},'%') OR owner_name LIKE CONCAT('%',#{keyword},'%'))</if>
+    ORDER BY asset_no
+  </select>
+  <select id="findAsset" resultType="FixedAsset">SELECT * FROM fixed_asset WHERE asset_no=#{assetNo}</select>
+  <insert id="insertChangeRequest" parameterType="AssetChangeRequest" useGeneratedKeys="true" keyProperty="requestId">
+    INSERT INTO asset_change_request(asset_no,requester_id,requested_department,requested_owner,requested_location,reason,request_status,requested_at)
+    VALUES(#{assetNo},#{requesterId},#{requestedDepartment},#{requestedOwner},#{requestedLocation},#{reason},#{requestStatus},#{requestedAt})
+  </insert>
+  <select id="findRequests" resultType="AssetChangeRequest">
+    SELECT r.*, a.asset_name FROM asset_change_request r JOIN fixed_asset a ON r.asset_no=a.asset_no WHERE 1=1
+    <if test="status != null and status != ''">AND r.request_status=#{status}</if>
+    ORDER BY r.request_id DESC
+  </select>
+  <select id="findRequest" resultType="AssetChangeRequest">
+    SELECT r.*, a.asset_name FROM asset_change_request r JOIN fixed_asset a ON r.asset_no=a.asset_no WHERE r.request_id=#{requestId}
+  </select>
+  <update id="updateRequestDecision">UPDATE asset_change_request SET request_status=#{status}, decided_by=#{decidedBy}, decided_at=#{decidedAt} WHERE request_id=#{requestId} AND request_status='PENDING'</update>
+  <update id="applyAssetChange">UPDATE fixed_asset SET department=#{department}, owner_name=#{owner}, location_name=#{location} WHERE asset_no=#{assetNo}</update>
+  <insert id="insertInspection">INSERT INTO asset_inspection(asset_no,inspector_id,inspection_result,remark,inspected_at) VALUES(#{assetNo},#{inspectorId},#{result},#{remark},#{inspectedAt})</insert>
+  <update id="updateInspectionDate">UPDATE fixed_asset SET last_inspected_date=#{inspectedDate} WHERE asset_no=#{assetNo}</update>
+  <select id="countPendingRequests" resultType="int">SELECT COUNT(*) FROM asset_change_request WHERE request_status='PENDING'</select>
+  <select id="countUninspectedAssets" resultType="int">SELECT COUNT(*) FROM fixed_asset WHERE last_inspected_date IS NULL OR last_inspected_date &lt; '2026-01-01'</select>
+</mapper>

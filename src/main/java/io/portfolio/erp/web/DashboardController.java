@@ -1,0 +1,3 @@
+package io.portfolio.erp.web;
+import io.portfolio.erp.security.RequirePermission; import io.portfolio.erp.service.DashboardService; import org.springframework.stereotype.Controller; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.*;
+@Controller public class DashboardController { private final DashboardService service; public DashboardController(DashboardService s){service=s;} @RequirePermission("DASHBOARD") @GetMapping("/dashboard") public String page(Model m,@RequestParam(defaultValue="2026-09") String period){m.addAttribute("period",period);m.addAttribute("summary",service.get(period));return "dashboard";} }

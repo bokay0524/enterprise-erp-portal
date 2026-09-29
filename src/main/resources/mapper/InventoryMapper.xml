@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.portfolio.erp.mapper.InventoryMapper">
+  <select id="search" resultType="InventoryStock">
+    SELECT * FROM inventory_stock WHERE 1=1
+    <if test="keyword != null and keyword != ''">AND (item_code LIKE CONCAT('%',#{keyword},'%') OR item_name LIKE CONCAT('%',#{keyword},'%'))</if>
+    <if test="warehouse != null and warehouse != ''">AND warehouse=#{warehouse}</if>
+    ORDER BY item_code
+  </select>
+  <select id="countLowStock" resultType="int">SELECT COUNT(*) FROM inventory_stock WHERE (stock_qty-reserved_qty) &lt;= 5</select>
+</mapper>

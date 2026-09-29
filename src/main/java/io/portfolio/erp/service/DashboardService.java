@@ -1,0 +1,3 @@
+package io.portfolio.erp.service;
+import io.portfolio.erp.domain.DashboardSummary; import io.portfolio.erp.mapper.*; import org.springframework.stereotype.Service;
+@Service public class DashboardService { private final SalesMapper sales; private final InventoryMapper inventory; private final AssetMapper asset; public DashboardService(SalesMapper s,InventoryMapper i,AssetMapper a){sales=s;inventory=i;asset=a;} public DashboardSummary get(String period){DashboardSummary d=new DashboardSummary();d.setTargetAmount(sales.sumTarget(period));d.setActualAmount(sales.sumActual(period));d.setLowStockCount(inventory.countLowStock());d.setPendingAssetRequests(asset.countPendingRequests());d.setUninspectedAssets(asset.countUninspectedAssets());return d;} }

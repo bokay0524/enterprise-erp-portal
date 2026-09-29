@@ -1,0 +1,3 @@
+package io.portfolio.erp.web;
+import io.portfolio.erp.security.RequirePermission; import io.portfolio.erp.service.InventoryService; import org.springframework.stereotype.Controller; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.*;
+@Controller public class InventoryController { private final InventoryService service; public InventoryController(InventoryService s){service=s;} @RequirePermission("INVENTORY_VIEW") @GetMapping("/inventory") public String page(Model m,@RequestParam(defaultValue="") String keyword,@RequestParam(defaultValue="") String warehouse){m.addAttribute("keyword",keyword);m.addAttribute("warehouse",warehouse);m.addAttribute("rows",service.search(keyword,warehouse));return "inventory/list";} }

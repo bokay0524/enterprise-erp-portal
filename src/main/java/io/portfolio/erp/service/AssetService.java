@@ -1,0 +1,10 @@
+package io.portfolio.erp.service;
+import io.portfolio.erp.domain.*; import io.portfolio.erp.mapper.AssetMapper; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.time.*; import java.time.format.DateTimeFormatter; import java.util.List;
+@Service
+public class AssetService {
+  private final AssetMapper mapper; private static final DateTimeFormatter TS=DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  public AssetService(AssetMapper m){mapper=m;} public List<FixedAsset> search(String keyword){return mapper.searchAssets(keyword);} public List<AssetChangeRequest> requests(String status){return mapper.findRequests(status);}
+  @Transactional public long requestChange(String assetNo,String dept,String owner,String location,String reason,String requester){if(mapper.findAsset(assetNo)==null) throw new IllegalArgumentException("Asset not found"); AssetChangeRequest r=new AssetChangeRequest();r.setAssetNo(assetNo);r.setRequesterId(requester);r.setRequestedDepartment(dept);r.setRequestedOwner(owner);r.setRequestedLocation(location);r.setReason(reason);r.setRequestStatus("PENDING");r.setRequestedAt(LocalDateTime.now().format(TS));mapper.insertChangeRequest(r);return r.getRequestId();}
+  @Transactional public void decide(long id,boolean approve,String userId){AssetChangeRequest r=mapper.findRequest(id); if(r==null||!"PENDING".equals(r.getRequestStatus())) throw new IllegalStateException("Pending request not found");String status=approve?"APPROVED":"REJECTED";int changed=mapper.updateRequestDecision(id,status,userId,LocalDateTime.now().format(TS));if(changed!=1)throw new IllegalStateException("Decision conflict");if(approve)mapper.applyAssetChange(r.getAssetNo(),r.getRequestedDepartment(),r.getRequestedOwner(),r.getRequestedLocation());}
+  @Transactional public void inspect(String assetNo,String result,String remark,String inspector){String ts=LocalDateTime.now().format(TS);mapper.insertInspection(assetNo,inspector,result,remark,ts);mapper.updateInspectionDate(assetNo,LocalDate.now().toString());}
+}

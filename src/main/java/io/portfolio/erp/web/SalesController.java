@@ -1,0 +1,3 @@
+package io.portfolio.erp.web;
+import io.portfolio.erp.security.RequirePermission; import io.portfolio.erp.service.SalesService; import org.springframework.stereotype.Controller; import org.springframework.ui.Model; import org.springframework.web.bind.annotation.*;
+@Controller public class SalesController { private final SalesService service; public SalesController(SalesService s){service=s;} @RequirePermission("SALES_VIEW") @GetMapping("/sales/performance") public String page(Model m,@RequestParam(defaultValue="2026-09") String period,@RequestParam(defaultValue="") String department){m.addAttribute("period",period);m.addAttribute("department",department);m.addAttribute("rows",service.search(period,department));return "sales/performance";} }
